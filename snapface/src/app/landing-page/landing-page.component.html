@@ -4,3 +4,9 @@
     <button (click)="onContinue()">Continuer vers Snapface</button>
   </div>
 </div>
+
+<form (ngSubmit)="onSubmitForm()">
+  <label for="emailInput">Inscrivez-vous pour recevoir notre newsletter !</label>
+  <input type="email" id="emailInput" name="userEmail" [(ngModel)]="userEmail">
+  <button type="submit">OK!</button>
+</form>
