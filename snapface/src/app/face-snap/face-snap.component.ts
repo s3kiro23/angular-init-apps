@@ -9,8 +9,13 @@ import { Router } from '@angular/router';
 })
 export class FaceSnapComponent {
   @Input() faceSnap!: FaceSnap;
+  btnText!: string;
 
   constructor(private router: Router) {}
+
+  ngOnInit() {
+    this.btnText = 'Snap me!';
+  }
 
   onViewFaceSnap() {
     this.router.navigateByUrl(`facesnaps/${this.faceSnap.id}`);

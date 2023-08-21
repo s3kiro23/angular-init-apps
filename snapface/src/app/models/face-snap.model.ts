@@ -5,7 +5,5 @@ export class FaceSnap {
     createdDate!: Date;
     snaps!: number;
     imageUrl!: string;
-    snapped!: boolean;
-    btnText!: string;
     location?: string;
 }
