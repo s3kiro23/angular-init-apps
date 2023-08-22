@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { FaceSnap } from '../models/face-snap.model';
+import { FaceSnap } from '../../../core/models/face-snap.model';
 import { Router } from '@angular/router';
 
 @Component({
