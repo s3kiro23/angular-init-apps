@@ -13,6 +13,7 @@ import { AuthService } from '../../../core/services/auth.service';
 export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
   loginPreview$!: Observable<string>;
+  errorMessage!: string;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -23,7 +24,7 @@ export class LoginComponent implements OnInit {
   ngOnInit() {
     this.loginForm = this.formBuilder.group(
       {
-        email: ['', [Validators.required, Validators.email]],
+        username: ['', [Validators.required, Validators.email]],
         password: ['', [Validators.required]],
       },
       {
@@ -37,8 +38,16 @@ export class LoginComponent implements OnInit {
   }
 
   onLogin() {
-    console.log(this.loginForm.value);
-    this.auth.login()
-    this.router.navigateByUrl('/facesnaps')
+    this.errorMessage = '';
+    this.auth.login(this.loginForm.value)
+    .subscribe({
+      error: (error) => {
+        this.errorMessage = error.message; // Met à jour le message d'erreur
+      },
+      complete: () => {
+        // Naviguer uniquement si la connexion réussit
+        this.router.navigateByUrl('/facesnaps');
+      },
+    });
   }
 }

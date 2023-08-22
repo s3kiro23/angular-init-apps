@@ -1,4 +1,7 @@
 import { Injectable } from '@angular/core';
+import { User } from '../models/user.model';
+import { HttpClient } from '@angular/common/http';
+import { Observable, tap, map } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -6,8 +9,34 @@ import { Injectable } from '@angular/core';
 export class AuthService {
   private token!: string;
 
-  login() {
-    this.token = 'MyFakeToken';
+  constructor(private http: HttpClient) {}
+
+  getAllUsers(): Observable<User[]> {
+    return this.http.get<User[]>('http://localhost:3000/users');
+  }
+
+  getUserByUsername(username: string): Observable<User> {
+    return this.http
+      .get<User[]>(`http://localhost:3000/users/?username=${username}`)
+      .pipe(
+        map((users) => {
+          if (users.length === 0) {
+            throw new Error(`La combinaison du mot de passe et de l'utilisateur n'existe pas`); // L'utilisateur n'existe pas
+          }
+          return users[0];
+        })
+      );
+  }
+
+  login(formValue: { username: string; password: string }) {
+    return this.getUserByUsername(formValue.username).pipe(
+      tap((user) => {
+        if (user.password !== formValue.password) {
+          throw new Error(`La combinaison du mot de passe et de l'utilisateur n'existe pas`); // L'utilisateur n'existe pas
+        }
+        this.token = 'MyFakeToken';
+      })
+    );
   }
 
   getToken(): string {
