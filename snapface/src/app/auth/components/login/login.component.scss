@@ -1,15 +1,9 @@
-.login-card {
+.form-card {
   box-sizing: border-box;
   width: 50%;
   margin: 20px auto;
   padding: 10px 30px;
   box-shadow: lightgray 4px 4px 20px;
-}
-
-h2 {
-    text-align: center;
-    margin: 35px;
-    font-weight: 800;
 }
 
 .form-group {
@@ -24,7 +18,7 @@ input {
   width: 50%;
 }
 
-.login-button {
+.action-buttons {
   width: 100%;
 }
 

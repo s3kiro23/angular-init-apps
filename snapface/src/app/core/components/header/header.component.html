@@ -8,6 +8,7 @@
       >Home</a
     >
     <a routerLink="facesnaps" routerLinkActive="active">FaceSnaps</a>
+    <a routerLink="auth/login" routerLinkActive="active" *ngIf="!token">Se connecter</a>
     <button (click)="onAddNewFaceSnap()">+</button>
   </nav>
 </header>
