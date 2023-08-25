@@ -3,7 +3,8 @@ ul {
 }
 
 li {
-  display: inline-block;
+  display: flex;
+  gap: 2em;
 }
 
 a {
