@@ -3,7 +3,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { Candidate } from '../models/candidate.model';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { delay, tap } from 'rxjs/operators';
+import { delay, tap, map, switchMap, take } from 'rxjs/operators';
 
 @Injectable()
 export class CandidatesService {
@@ -19,20 +19,81 @@ export class CandidatesService {
         return this._candidates$.asObservable();
     }
 
+    private lastCandidatesLoad = 0;
+
     private setLoadingStatus(loading: boolean) {
         this._loading$.next(loading);
     }
 
     getCandidatesFromServer() {
+        if (Date.now() - this.lastCandidatesLoad <= 300000) {
+            return;
+        }
         this.setLoadingStatus(true);
         this.http
             .get<Candidate[]>(`${environment.apiUrl}/candidates`)
             .pipe(
                 delay(1000),
                 tap((candidates) => {
+                    this.lastCandidatesLoad = Date.now();
                     this._candidates$.next(candidates);
                     this.setLoadingStatus(false);
                 })
+            )
+            .subscribe();
+    }
+
+    getCandidateById(id: number): Observable<Candidate> {
+        if (!this.lastCandidatesLoad) {
+            this.getCandidatesFromServer();
+        }
+        return this._candidates$.pipe(
+            map(
+                (candidates) =>
+                    candidates.filter((candidate) => candidate.id === id)[0]
+            )
+        );
+    }
+
+    refuseCandidate(id: number): void {
+        this.setLoadingStatus(true);
+        this.http
+            .delete(`${environment.apiUrl}/candidates/${id}`)
+            .pipe(
+                delay(1000),
+                switchMap(() => this.candidates$),
+                take(1),
+                map((candidates) =>
+                    candidates.filter((candidate) => candidate.id !== id)
+                ),
+                tap((candidates) => {
+                    this._candidates$.next(candidates);
+                    this.setLoadingStatus(false);
+                })
+            )
+            .subscribe();
+    }
+
+    hireCandidate(id: number): void {
+        this._candidates$
+            .pipe(
+                take(1),
+                map((candidates) =>
+                    candidates.map((candidate) =>
+                        candidate.id === id
+                            ? { ...candidate, company: 'SnapFace Ltd' }
+                            : candidate
+                    )
+                ),
+                tap((candidates) => this._candidates$.next(candidates)),
+                switchMap((updatedCandidates) =>
+                    this.http.patch(
+                        `${environment.apiUrl}/candidates/${id}`,
+                        updatedCandidates.find(
+                            (candidate) => candidate.id === id
+                        )
+                    )
+                )
             )
             .subscribe();
     }
